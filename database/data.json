@@ -1,0 +1,27 @@
+{
+    "authors": [
+      { "name": "John Mayer", "genre": "Blues Rock", "publisher": "Columbia Records" },
+      { "name": "Taylor Swift", "genre": "Pop", "publisher": "Republic Records" },
+      { "name": "Adele", "genre": "Soul", "publisher": "XL Recordings" },
+      { "name": "Ed Sheeran", "genre": "Pop Folk", "publisher": "Asylum Records" },
+      { "name": "Bruno Mars", "genre": "Funk Pop", "publisher": "Atlantic Records" },
+      { "name": "Billie Eilish", "genre": "Alternative Pop", "publisher": "Darkroom" }
+    ],
+    "albums": [
+      { "name": "Continuum", "release_date": "2006-09-12", "publisher": "Columbia Records" },
+      { "name": "1989", "release_date": "2014-10-27", "publisher": "Big Machine" },
+      { "name": "25", "release_date": "2015-11-20", "publisher": "XL Recordings" },
+      { "name": "Divide", "release_date": "2017-03-03", "publisher": "Asylum Records" },
+      { "name": "Doo-Wops & Hooligans", "release_date": "2010-10-04", "publisher": "Atlantic Records" },
+      { "name": "Happier Than Ever", "release_date": "2021-07-30", "publisher": "Darkroom" }
+    ],
+    "songs": [
+      { "title": "Gravity", "author_id": 1, "album_id": 1, "release_date": "2006-09-12" },
+      { "title": "Blank Space", "author_id": 2, "album_id": 2, "release_date": "2014-10-27" },
+      { "title": "Hello", "author_id": 3, "album_id": 3, "release_date": "2015-11-20" },
+      { "title": "Perfect", "author_id": 4, "album_id": 4, "release_date": "2017-03-03" },
+      { "title": "Just The Way You Are", "author_id": 5, "album_id": 5, "release_date": "2010-10-04" },
+      { "title": "Happier Than Ever", "author_id": 6, "album_id": 6, "release_date": "2021-07-30" }
+    ]
+  }
+  
