@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Songs</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    body { font-family: sans-serif; max-width: 720px; margin: auto; padding: 2rem; }
+    input, button { padding: .5rem; margin: .3rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: .5rem; }
+    th { background: #333; color: #fff; }
+  </style>
+</head>
+<body>
+  <h2>🎵 Songs</h2>
+  <input id="search" placeholder="Search..." style="width:100%">
+  <table><thead>
+    <tr><th>ID</th><th>Title</th><th>Author</th><th>Album</th><th>Date</th><th></th></tr>
+  </thead><tbody id="list"></tbody></table>
+
+  <form id="form" style="display:none">
+    <input id="title" placeholder="Title" required>
+    <input id="author" placeholder="Author" required>
+    <input id="album" placeholder="Album">
+    <input id="date" type="date" required>
+    <input type="hidden" id="id">
+    <button>Save</button>
+    <button type="button" onclick="cancel()">Cancel</button>
+  </form>
+  <button onclick="showForm()">➕ New</button>
+
+  <script>
+    const getElementById = id => document.getElementById(id);
+    let data = [];
+    const load = async () => {
+      data = await fetch('/songs/details').then(r => r.json());
+      render(data);
+    };
+    const render = d => getElementById('list').innerHTML = d.map(s => `
+      <tr><td>${s.id}</td><td>${s.title}</td><td>${s.author_name}</td><td>${s.album_name}</td><td>${s.release_date}</td>
+      <td><button onclick='edit(${JSON.stringify(s)})'>✏</button><button onclick='del(${s.id})'>🗑</button></td></tr>`).join('');
+    const edit = s => { getElementById('form').style.display = 'block'; ['id','title','author','album','date'].forEach(k => getElementById(k).value = s[k] || s[k+'_name']); };
+    const del = async id => confirm('Delete?') && (await fetch(`/songs/${id}`, { method: 'DELETE' }), load());
+    const cancel = () => { getElementById('form').reset(); getElementById('form').style.display = 'none'; };
+    const showForm = () => { cancel(); getElementById('form').style.display = 'block'; };
+    getElementById('form').onsubmit = async e => {
+      e.preventDefault();
+      const s = { title: $('title').value, author_name: $('author').value, album_name: $('album').value, release_date: $('date').value };
+      const id = $('id').value, m = id ? 'PUT' : 'POST', u = id ? `/songs/${id}` : '/songs';
+      await fetch(u, { method: m, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(s) });
+      cancel(); load();
+    };
+    getElementById('search').oninput = () => {
+      const k = getElementById('search').value.toLowerCase();
+      render(data.filter(s => Object.values(s).some(v => v.toString().toLowerCase().includes(k))));
+    };
+    load();
+  </script>
+</body>
+</html>

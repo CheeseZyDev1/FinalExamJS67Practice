@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html><head>
+  <meta charset="UTF-8"><title>Songs</title>
+  <style>
+    body { font-family: sans-serif; max-width: 720px; margin: auto; padding: 2rem; }
+    input, button { padding: .5rem; margin: .3rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: .5rem; text-align: left; }
+    th { background: #333; color: white; }
+    form { margin-top: 1rem; border: 1px solid #ddd; padding: 1rem; }
+  </style>
+</head><body>
+  <h2>🎵 Songs</h2>
+  <input id="search" placeholder="Search..." style="width:100%">
+  <table><thead>
+    <tr><th>ID</th><th>Title</th><th>Author</th><th>Album</th><th>Date</th><th></th></tr>
+  </thead><tbody id="list"></tbody></table>
+
+  <form id="form" style="display:none">
+    <input id="title" placeholder="Title" required>
+    <input id="author" placeholder="Author" required>
+    <input id="album" placeholder="Album">
+    <input id="date" type="date" required>
+    <input type="hidden" id="id">
+    <button>💾</button><button type="button" onclick="cancel()">✖</button>
+  </form>
+  <button onclick="showForm()">➕ Add New</button>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    let data = [];
+    const load = async () => {
+      data = await fetch('/songs/details').then(r => r.json());
+      render(data);
+    };
+    const render = rows => {
+      $('list').innerHTML = rows.map(s => `
+        <tr><td>${s.id}</td><td>${s.title}</td><td>${s.author_name}</td><td>${s.album_name}</td><td>${s.release_date}</td>
+        <td><button onclick='edit(${JSON.stringify(s)})'>✏</button>
+        <button onclick='del(${s.id})'>🗑</button></td></tr>`).join('');
+    };
+    const edit = s => {
+      $('form').style.display = 'block';
+      $('id').value = s.id;
+      $('title').value = s.title;
+      $('author').value = s.author_name;
+      $('album').value = s.album_name;
+      $('date').value = s.release_date;
+    };
+    const del = async id => {
+      if (confirm('Delete?')) await fetch(`/songs/${id}`, { method: 'DELETE' });
+      load();
+    };
+    const cancel = () => { $('form').reset(); $('id').value = ''; $('form').style.display = 'none'; };
+    const showForm = () => { cancel(); $('form').style.display = 'block'; };
+
+    $('form').onsubmit = async e => {
+      e.preventDefault();
+      const s = {
+        title: $('title').value,
+        author_name: $('author').value,
+        album_name: $('album').value,
+        release_date: $('date').value
+      };
+      const id = $('id').value;
+      const url = id ? `/songs/${id}` : '/songs';
+      const method = id ? 'PUT' : 'POST';
+      await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(s) });
+      cancel(); load();
+    };
+
+    $('search').oninput = () => {
+      const k = $('search').value.toLowerCase();
+      render(data.filter(s =>
+        s.id.toString().includes(k) ||
+        s.title.toLowerCase().includes(k) ||
+        s.author_name.toLowerCase().includes(k) ||
+        s.album_name.toLowerCase().includes(k)
+      ));
+    };
+    load();
+  </script>
+</body></html>

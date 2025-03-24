@@ -4,7 +4,6 @@ const fs = require('fs');
 // โหลดข้อมูล JSON
 const data = JSON.parse(fs.readFileSync('./database/data.json', 'utf8'));
 
-
 // เชื่อมต่อหรือสร้างไฟล์ music.db
 const db = new sqlite3.Database('./database/music.db', (err) => {
     if (err) return console.error(err.message);
@@ -12,6 +11,16 @@ const db = new sqlite3.Database('./database/music.db', (err) => {
 });
 
 db.serialize(() => {
+    // ✅ ล้างข้อมูลเก่า
+    db.run(`DELETE FROM songs`);
+    db.run(`DELETE FROM albums`);
+    db.run(`DELETE FROM authors`);
+
+    // ✅ รีเซต id ให้นับใหม่
+    db.run(`DELETE FROM sqlite_sequence WHERE name='songs'`);
+    db.run(`DELETE FROM sqlite_sequence WHERE name='albums'`);
+    db.run(`DELETE FROM sqlite_sequence WHERE name='authors'`);
+
     // ✅ สร้างตาราง authors
     db.run(`CREATE TABLE IF NOT EXISTS authors (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,11 +47,6 @@ db.serialize(() => {
         FOREIGN KEY (author_id) REFERENCES authors(id),
         FOREIGN KEY (album_id) REFERENCES albums(id)
     )`);
-
-    // 🔁 ล้างข้อมูลเดิม
-    db.run(`DELETE FROM songs`);
-    db.run(`DELETE FROM albums`);
-    db.run(`DELETE FROM authors`);
 
     // 📥 เพิ่ม authors
     const insertAuthor = db.prepare(`INSERT INTO authors (name, genre, publisher) VALUES (?, ?, ?)`);
