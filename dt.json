@@ -1,0 +1,12 @@
+{
+    "authors": [
+      { "name": "John Mayer", "genre": "Blues Rock", "publisher": "Columbia" }
+    ],
+    "albums": [
+      { "name": "Continuum", "release_date": "2006-09-12", "publisher": "Columbia" }
+    ],
+    "songs": [
+      { "title": "Gravity", "author_id": 1, "album_id": 1, "release_date": "2006-09-12" }
+    ]
+  }
+  

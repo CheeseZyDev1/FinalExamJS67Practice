@@ -7,10 +7,11 @@ const data = JSON.parse(fs.readFileSync('./database/data.json', 'utf8'));
 // เชื่อมต่อหรือสร้างไฟล์ music.db
 const db = new sqlite3.Database('./database/music.db', (err) => {
     if (err) return console.error(err.message);
-    console.log('🎵 Connected to music.db');
+    console.log('Connected to music.db');
 });
 
 db.serialize(() => {
+    /*
     // ✅ ล้างข้อมูลเก่า
     db.run(`DELETE FROM songs`);
     db.run(`DELETE FROM albums`);
@@ -20,7 +21,7 @@ db.serialize(() => {
     db.run(`DELETE FROM sqlite_sequence WHERE name='songs'`);
     db.run(`DELETE FROM sqlite_sequence WHERE name='albums'`);
     db.run(`DELETE FROM sqlite_sequence WHERE name='authors'`);
-
+    */
     // ✅ สร้างตาราง authors
     db.run(`CREATE TABLE IF NOT EXISTS authors (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

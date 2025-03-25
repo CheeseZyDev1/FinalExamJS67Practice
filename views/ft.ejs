@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Music Library</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🎵 Music Library</h1>
+
+    <!-- Search -->
+    <input type="text" id="search" placeholder="Search by title, author, album..." />
+
+    <!-- Song List -->
+    <table id="songTable">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Album</th>
+          <th>Release Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Add/Edit Song Form -->
+    <form id="songForm">
+      <h2>Add/Edit Song</h2>
+      <input type="hidden" name="id" />
+      <input type="text" name="title" placeholder="Title" required />
+      <input type="text" name="author_name" placeholder="Author Name" required />
+      <input type="text" name="author_genre" placeholder="Author Genre" />
+      <input type="text" name="author_publisher" placeholder="Author Publisher" />
+      <input type="text" name="album_name" placeholder="Album Name" />
+      <input type="date" name="album_release_date" placeholder="Album Release Date" />
+      <input type="text" name="album_publisher" placeholder="Album Publisher" />
+      <input type="date" name="release_date" placeholder="Song Release Date" required />
+      <button type="submit">Save</button>
+    </form>
+  </div>
+
+  <script>
+    const tableBody = document.querySelector('#songTable tbody');
+    const form = document.getElementById('songForm');
+    const search = document.getElementById('search');
+    let songs = [];
+
+    const fetchSongs = async () => {
+      const res = await fetch('/songs/details');
+      songs = await res.json();
+      displaySongs(songs);
+    };
+
+    const displaySongs = (data) => {
+      tableBody.innerHTML = data.map(song => `
+        <tr>
+          <td>${song.title}</td>
+          <td>${song.author_name}</td>
+          <td>${song.album_name}</td>
+          <td>${song.release_date}</td>
+          <td>
+            <button onclick='editSong(${JSON.stringify(song)})'>Edit</button>
+            <button onclick='deleteSong(${song.id})'>Delete</button>
+          </td>
+        </tr>`).join('');
+    };
+
+    const editSong = (song) => {
+      for (let key in song) {
+        const input = form.querySelector(`[name=${key}]`);
+        if (input) input.value = song[key];
+      }
+    };
+
+    const deleteSong = async (id) => {
+      if (!confirm('Delete this song?')) return;
+      await fetch(`/songs/${id}`, { method: 'DELETE' });
+      fetchSongs();
+    };
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      const method = data.id ? 'PUT' : 'POST';
+      const url = data.id ? `/songs/${data.id}` : '/songs';
+      delete data.id;
+      await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      form.reset();
+      fetchSongs();
+    };
+
+    search.oninput = () => {
+      const keyword = search.value.toLowerCase();
+      const filtered = songs.filter(s =>
+        s.title.toLowerCase().includes(keyword) ||
+        s.author_name.toLowerCase().includes(keyword) ||
+        s.album_name.toLowerCase().includes(keyword) ||
+        s.id.toString().includes(keyword)
+      );
+      displaySongs(filtered);
+    };
+
+    fetchSongs();
+  </script>
+</body>
+</html>
